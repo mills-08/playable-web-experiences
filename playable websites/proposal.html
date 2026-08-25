@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Romantic Proposal</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+
+        body {
+            margin: 0;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffdde1, #a1c4fd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(255, 182, 193, 0.6), 0 0 40px rgba(161, 196, 253, 0.4);
+        }
+        h1 {
+            color: #ff69b4;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #ff69b4;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            outline: none;
+        }
+        .yes-btn {
+            background: #a1c4fd;
+            color: #fff;
+            box-shadow: 0 0 10px #a1c4fd;
+        }
+        .yes-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #a1c4fd;
+        }
+        .no-btn {
+            background: #ffb6c1;
+            color: #fff;
+            box-shadow: 0 0 10px #ffb6c1;
+            position: relative;
+        }
+        input {
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 10px;
+            border: 2px solid #ff69b4;
+            outline: none;
+            margin-top: 15px;
+            width: 80%;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <h1>  Will you Marry me? 💕</h1>
+        <button class="yes-btn" id="yesBtn">Yes</button>
+        <button class="no-btn" id="noBtn">No</button>
+    </div>
+
+    <script>
+        const container = document.getElementById('container');
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+
+        // Function to make the 'no' button float randomly
+        function floatNoButton() {
+            const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+            const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = `${x}px`;
+            noBtn.style.top = `${y}px`;
+        }
+
+        noBtn.addEventListener('mouseenter', floatNoButton);
+
+        yesBtn.addEventListener('click', () => {
+            container.innerHTML = `
+                <h1>Yaayyy! 🥰</h1>
+                <p>When are you free?</p>
+                <input type="text" id="freeInput" placeholder="Type here..." />
+                <button class="yes-btn" id="nextBtn">Submit</button>
+            `;
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                const freeTime = document.getElementById('freeInput').value.trim();
+                if(freeTime) {
+                    container.innerHTML = `
+                        <h1>Okayzzz lesgooo! 😍</h1>
+                        <p>I'm free. Where would you like to go?</p>
+                        <input type="text" id="placeInput" placeholder="Type here..." />
+                        <button class="yes-btn" id="placeBtn">Submit</button>
+                    `;
+                    document.getElementById('placeBtn').addEventListener('click', () => {
+                        const place = document.getElementById('placeInput').value.trim();
+                        if(place) {
+                            container.innerHTML = `
+                                <h1>Ohh that's a really good idea! 💖</h1>
+                                <p>We'll do that. Is it a deal?</p>
+                                <button class="yes-btn" id="dealYes">Yes</button>
+                                <button class="no-btn" id="dealNo">No</button>
+                            `;
+                            const dealNo = document.getElementById('dealNo');
+                            dealNo.addEventListener('mouseenter', floatNoButton);
+                            document.getElementById('dealYes').addEventListener('click', () => {
+                                container.innerHTML = `
+                                    <h1>But how would I contact you? 😳</h1>
+                                    <p>Can you give me your number?</p>
+                                    <input type="text" id="numberInput" placeholder="Type here..." />
+                                    <button class="yes-btn" id="numberBtn">Submit</button>
+                                `;
+                                document.getElementById('numberBtn').addEventListener('click', () => {
+                                    const number = document.getElementById('numberInput').value.trim();
+                                    if(number) {
+                                        container.innerHTML = `
+                                            <h1>Aww let's meet up then! 🥰</h1>
+                                            <p>You're cute so I hope this goes amazing, can't wait! Byeee~~ 💕</p>
+                                        `;
+                                    }
+                                });
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

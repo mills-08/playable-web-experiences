@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Haunted Escape</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: black;
+            font-family: 'Courier New', monospace;
+            color: white;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            background: url('https://i.imgur.com/W2vVXbD.jpg') no-repeat center center;
+            background-size: cover;
+            box-shadow: 0 0 20px red;
+        }
+        #message {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 24px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <div id="message">Find all 3 keys and escape!</div>
+
+    <audio id="scream" src="https://www.soundjay.com/horror/sounds/scream-1.mp3" preload="auto"></audio>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const message = document.getElementById("message");
+        const scream = document.getElementById("scream");
+
+        const width = canvas.width;
+        const height = canvas.height;
+
+        // Player settings
+        const playerSize = 30;
+        let player = {x: 50, y: 50, size: playerSize, speed: 4};
+
+        // Key settings
+        const keySize = 20;
+        let keys = [];
+        let keysCollected = 0;
+
+        // Car settings
+        const carSize = 60;
+        let car = {x: width - 100, y: height - 100, size: carSize};
+
+        // Ghost settings
+        const ghostSize = 50;
+        let ghost = {x: width/2, y: height/2, size: ghostSize, speed: 2};
+
+        let ghostActive = false;
+        let gameOver = false;
+
+        // Initialize keys at random positions
+        for(let i = 0; i < 3; i++) {
+            keys.push({
+                x: Math.random() * (width - keySize),
+                y: Math.random() * (height - keySize),
+                size: keySize,
+                found: false
+            });
+        }
+
+        document.addEventListener("keydown", (e) => {
+            if(gameOver) return;
+            if(e.key === "ArrowUp") player.y -= player.speed;
+            if(e.key === "ArrowDown") player.y += player.speed;
+            if(e.key === "ArrowLeft") player.x -= player.speed;
+            if(e.key === "ArrowRight") player.x += player.speed;
+        });
+
+        function drawPlayer() {
+            ctx.fillStyle = "white";
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+        }
+
+        function drawKeys() {
+            ctx.fillStyle = "gold";
+            keys.forEach(key => {
+                if(!key.found) {
+                    ctx.fillRect(key.x, key.y, key.size, key.size);
+                }
+            });
+        }
+
+        function drawCar() {
+            ctx.fillStyle = "green";
+            ctx.fillRect(car.x, car.y, car.size, car.size);
+        }
+
+        function drawGhost() {
+            if(ghostActive) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(ghost.x, ghost.y, ghost.size, ghost.size);
+            }
+        }
+
+        function checkCollision(a, b) {
+            return a.x < b.x + b.size &&
+                   a.x + a.size > b.x &&
+                   a.y < b.y + b.size &&
+                   a.y + a.size > b.y;
+        }
+
+        function update() {
+            // Check for key collection
+            keys.forEach(key => {
+                if(!key.found && checkCollision(player, key)) {
+                    key.found = true;
+                    keysCollected++;
+                    message.textContent = `Keys collected: ${keysCollected}/3`;
+                    if(keysCollected === 3) {
+                        message.textContent = "Find the car and escape!";
+                    }
+                }
+            });
+
+            // Activate ghost after all keys are found
+            if(keysCollected === 3 && !ghostActive) {
+                ghostActive = true;
+                message.textContent = "The ghost is chasing you!";
+                scream.play();
+            }
+
+            // Move ghost toward player
+            if(ghostActive) {
+                let dx = player.x - ghost.x;
+                let dy = player.y - ghost.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist > 0) {
+                    ghost.x += (dx / dist) * ghost.speed;
+                    ghost.y += (dy / dist) * ghost.speed;
+                }
+            }
+
+            // Check if ghost caught player
+            if(ghostActive && checkCollision(player, ghost)) {
+                message.textContent = "You were caught by the ghost!";
+                gameOver = true;
+            }
+
+            // Check if player escapes
+            if(keysCollected === 3 && checkCollision(player, car)) {
+                message.textContent = "You escaped! You win!";
+                gameOver = true;
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, width, height);
+            drawPlayer();
+            drawKeys();
+            drawCar();
+            drawGhost();
+        }
+
+        function gameLoop() {
+            if(!gameOver) {
+                update();
+                draw();
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
